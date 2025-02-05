@@ -23,6 +23,11 @@ app.use('/lims/master',verifyToken,role("admin"),MasterRoutes,ReportDoctor);
 /// Routes used by Phelbotomist
 app.use('/lims/ppp',verifyToken,role('phlebotomist'),RegistrationRoutes);
 
+// Test Route
+app.get('/',async (req,res) => {
+    return res.json({message:"Welcome to the AWS Cloud"});
+});
+
 const server=async()=>{
     try {
         await sequelize.authenticate(); 
