@@ -19,15 +19,15 @@
       run: npm install
       
     - name: Generate deployment package
-      run: zip -r lims.zip .
+      run: zip -r lims_api.zip .
 
     - name: Deploy to EB
       uses: einaregilsson/beanstalk-deploy@v22
       with:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        application_name: 'node-js-app'
-        environment_name: 'Node-js-app-env'
+        application_name: 'lims'
+        environment_name: 'Lims-env'
         version_label: ${{github.sha}}
         region: ap-south-1
-        deployment_package: lims.zip
+        deployment_package: lims_api.zip

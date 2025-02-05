@@ -25,8 +25,9 @@ app.use('/lims/ppp',verifyToken,role('phlebotomist'),RegistrationRoutes);
 
 const server=async()=>{
     try {
-        await sequelize.authenticate();
-        console.log('Database Connected'); 
+        await sequelize.authenticate(); 
+        console.log("Database Connected");
+        
         app.listen(PORT,()=>{ console.log(`${PORT} port is Connected`);});
     } catch (error) {
         console.log(error)
