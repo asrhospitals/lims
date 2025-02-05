@@ -53,8 +53,6 @@ const login=async(req,res)=>{
         /// Taking username and password from user request
         const{username,password,hospital_code}=req.body;
        
-        
-
          // Find user with hospital information
         const user = await User.findOne({ where: { username }});
       
@@ -72,7 +70,7 @@ const login=async(req,res)=>{
             /// Else password is matched , then generateOTP function will create OTP
           const otp = generateOtp();
           /// and Save otp in DataBase
-          await OTP.create({ userid: user.user_id, otp ,expires_at: new Date(Date.now() + 10 * 60 * 1000)}); 
+          await OTP.create({ user_id: user.user_id, otp ,expires_at: new Date(Date.now() + 10 * 60 * 1000)}); 
           
           // Send OTP to predefined email
          await sendOtp(process.env.PREDEFINED_EMAIL, otp);
