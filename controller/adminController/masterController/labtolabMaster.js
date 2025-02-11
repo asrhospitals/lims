@@ -7,7 +7,7 @@ const addlabtolab=async(req,res)=>{
         const createLab=await LabtoLab.create(newLab);
         res.status(201).json(createLab);
     } catch (error) {
-        res.status(400).send({message:'Something went wrong'});
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 };
 
@@ -17,7 +17,7 @@ const getlabtolab=async(req,res)=>{
         const getlab=await LabtoLab.findAll();
         res.status(200).json(getlab);
     } catch (error) {
-        res.status(400).send({message:'Something went wrong'});
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 };
 
@@ -29,7 +29,7 @@ const updatelabtolab=async(req,res)=>{
         updatelab.update(req.body);
         res.status(200).json(updatelab);
     } catch (error) {
-        res.status(400).send({message:'Something went wrong'});
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 };
 

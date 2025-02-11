@@ -40,7 +40,7 @@ const Hospital=sequalize.define('hospitalmaster',{
         allowNull:false
     },
     phoneno:{
-        type:DataTypes.INTEGER,
+        type:DataTypes.STRING,
         allowNull:false
        
     },

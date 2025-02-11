@@ -7,7 +7,7 @@ const addDocAuth=async (req,res) => {
         const createDocAuth=await DoctorAuth.create(newDocAuth);
         res.status(201).json(createDocAuth);
     } catch (error) {
-        res.status(400).send('Something went wrong');
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
     
 };
@@ -18,7 +18,7 @@ const getDocAuth=async (req,res) => {
         const getDocauth=await DoctorAuth.findAll();
         res.status(200).json(getDocauth);
     } catch (error) {
-        res.status(400).send('Something went wrong');
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
     
 };
@@ -31,7 +31,7 @@ const updateDocAuth=async (req,res) => {
         updateDoc.update(req.body);
         res.status(200).json({message:'Update successfully',data:updateDoc});
     } catch (error) {
-        res.status(400).send('Something went wrong');
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
     
 };

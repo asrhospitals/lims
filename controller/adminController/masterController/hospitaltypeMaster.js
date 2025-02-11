@@ -7,7 +7,7 @@ const addhsptltype = async (req, res) => {
     const createHospitalType=await HospipatlType.create(newHospitalType);
     res.status(201).json({message:'Created successfully',data:createHospitalType});
   } catch (error) {
-    res.status(400).send("Something went wrong");
+    res.status(400).send({message:'Something went wrong',error:error.message});
   }
 };
 
@@ -18,7 +18,7 @@ const gethsptltype = async (req, res) => {
     const getHospitalType=await HospipatlType.findAll();
     res.status(200).json(getHospitalType);
   } catch (error) {
-    res.status(400).send("Something went wrong");
+    res.status(400).send({message:'Something went wrong',error:error.message});
   }
 };
 
@@ -33,7 +33,7 @@ const updatehsptltype = async (req, res) => {
     res.status(200).json(updateHospitalType);
 
   } catch (error) {
-    res.status(400).send("Something went wrong");
+    res.status(400).send({message:'Something went wrong',error:error.message});
   }
 };
 

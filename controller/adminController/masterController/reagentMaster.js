@@ -7,7 +7,7 @@ const addReagent=async (req,res) => {
         const createReagent=await Reagent.create(newReagent);
         res.status(201).json({message:"Created successfully",data:createReagent});
     } catch (error) {
-        res.status(400).send('Something went wrong');
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
     
 };
@@ -19,7 +19,7 @@ const getReagent=async (req,res) => {
         const newReagent=await Reagent.findAll();
         res.status(200).json(newReagent);
     } catch (error) {
-        res.status(400).send('Something went wrong');
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
     
 };
@@ -33,7 +33,7 @@ const updateReagent=async (req,res) => {
         updateReg.update(req.body);
         res.status(200).json(updateReg);
     } catch (error) {
-        res.status(400).send('Something went wrong');
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
     
 };

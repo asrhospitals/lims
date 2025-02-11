@@ -7,7 +7,7 @@ const addReport=async(req,res)=>{
         const createReport=await ReportType.create(newReport);
         res.status(201).json(createReport);
     } catch (error) {
-        res.status(400).send({message:"Something went wrong"});
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 };
 
@@ -19,7 +19,7 @@ const getReport=async(req,res)=>{
         const findReport=await Report.findAll();
         res.status(200).json(findReport);
     } catch (error) {
-        res.status(400).send({message:"Something went wrong"});
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 };
 
@@ -32,7 +32,7 @@ const updateReport=async(req,res)=>{
         updateReport.update(req.body);
         res.status(200).json(updateReport)
     } catch (error) {
-        
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 };
 

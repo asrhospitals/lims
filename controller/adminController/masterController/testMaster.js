@@ -7,7 +7,7 @@ const addTest= async(req,res)=>{
         const createTest=await Test.create(newTest);
         res.status(201).json({message:'Test created succesfully',data:createTest});
     } catch (error) {
-         res.status(400).send('Something went wrong');
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 }
 
@@ -18,7 +18,7 @@ const getTest=async (req,res) => {
         const newTest=await Test.findAll();
         res.status(200).json(newTest);
     } catch (error) {
-        res.status(400).send('Something went wrong');
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 }
 
@@ -31,7 +31,7 @@ const updateTest=async (req,res) => {
         newTest.update(req.body); 
         res.json(newTest);
     } catch (error) {
-        res.status(400).send('Something went wrong');
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
     
 }

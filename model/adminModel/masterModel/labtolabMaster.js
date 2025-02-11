@@ -28,7 +28,7 @@ const LabtoLab = sequalize.define("labtolab", {
     allowNull: false,
   },
   contactNo: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     allowNull: false,
   },
   email: {

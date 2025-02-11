@@ -7,7 +7,7 @@ const addPhlebo=async(req,res)=>{
         const createPhlebo=await Phlebotomist.create(newPhlebo);
         res.status(201).json(createPhlebo);
     } catch (error) {
-        res.status(400).send({message:'Something went wrong'});
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 };
 
@@ -18,7 +18,7 @@ const getPhlebo=async(req,res)=>{
         const getphlebo=await Phlebotomist.findAll();
         res.status(200).json(getphlebo);
     } catch (error) {
-        res.status(400).send({message:'Something went wrong'});
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 };
 
@@ -30,7 +30,7 @@ const updatePhlebo=async(req,res)=>{
         updatephlebo.update(req.body);
         res.status(200).json(updatephlebo);
     } catch (error) {
-        res.status(400).send({message:'Something went wrong'});
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 };
 

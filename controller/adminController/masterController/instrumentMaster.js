@@ -7,7 +7,7 @@ const addInstrument=async(req,res)=>{
         const createIntrument=await Instrument.create(newInstrument);
         res.status(201).json(createIntrument);
     } catch (error) {
-        res.status(400).send({message:'Something went wrong'});
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 };
 
@@ -17,7 +17,7 @@ const getIntrument=async(req,res)=>{
         const getinstrument=await Instrument.findAll();
         res.status(200).json(getinstrument);
     } catch (error) {
-        res.status(400).send({message:'Something went wrong'}); 
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 };
 
@@ -29,7 +29,7 @@ const updateIntrument=async(req,res)=>{
         updateinstrument.update(req.body);
         res.status(200).json(updateinstrument);
     } catch (error) {
-        res.status(400).send({message:'Something went wrong'});
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
     
 };

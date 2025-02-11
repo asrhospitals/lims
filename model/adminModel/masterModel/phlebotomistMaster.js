@@ -31,7 +31,7 @@ const Phlebotomist = sequalize.define("phlebotomist", {
     allowNull: false,
   },
   contactNo: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     allowNull: false,
   },
   gender: {

@@ -7,7 +7,7 @@ const addTechnician=async(req,res)=>{
         const createTechnician=await Technician.create(newTechnician);
         res.status(201).json(createTechnician);
     } catch (error) {
-        res.status(400).send({message:'Somwthing went wrong'});
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 };
 
@@ -18,7 +18,7 @@ const getTechnician=async(req,res)=>{
         const gettechnician=await Technician.findAll();
         res.status(200).json(gettechnician);
     } catch (error) {
-        res.status(400).send({message:'Somwthing went wrong'});
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 
 };
@@ -32,7 +32,7 @@ const updateTechnician=async(req,res)=>{
         updateTech.update(req.body);
         res.status(200).json(updateTech);
     } catch (error) {
-        res.status(400).send({message:'Somwthing went wrong'});
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 };
 

@@ -7,7 +7,7 @@ const createProfile=async (req,res) => {
         const addProfile=await Profile.create(newProfile);
         res.status(201).json(addProfile);
     } catch (error) {
-        res.status(400).send('Something went wrong');
+        res.status(400).send({message:'Something went wrong',error:error.message});
         
     }
     
@@ -19,7 +19,7 @@ const fetchProfile=async (req,res) => {
         const getNewProfile=await Profile.findAll();
         res.status(200).json(getNewProfile);
     } catch (error) {
-        res.status(400).send('Something went wrong');
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
     
 };
@@ -32,7 +32,7 @@ const updateProfiles=async (req,res) => {
         updateNewProfile.update(req.body);
         res.status(200).json({message:'Update Successfully',data:updateNewProfile});
     } catch (error) {
-        res.status(400).send('Something went wrong');
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
     
 };

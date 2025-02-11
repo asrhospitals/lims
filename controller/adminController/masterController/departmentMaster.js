@@ -7,7 +7,7 @@ const addDepartment = async (req, res) => {
     const createDepartment=await DeparmentMaster.create(newDepartment);
     res.status(201).json({ message: "Created successfully",data:createDepartment});
   } catch (error) {
-    res.status(400).send("Something went wrong");
+    res.status(400).send({message:'Something went wrong',error:error.message});
   }
 };
 
@@ -18,7 +18,7 @@ const getDepartment = async (req, res) => {
     const newDepartment = await DeparmentMaster.findAll(); 
     res.status(200).json(newDepartment);
   } catch (error) {
-    res.status(404).send("Something went wrong");
+    res.status(400).send({message:'Something went wrong',error:error.message});
   }
 };
 
@@ -29,7 +29,7 @@ const updateDepartment = async (req, res) => {
     newDepartment.update(req.body); 
     res.json(newDepartment);
   } catch (error) {
-    res.status(400).send("Something went wrong");
+    res.status(400).send({message:'Something went wrong',error:error.message});
   }
 };
 

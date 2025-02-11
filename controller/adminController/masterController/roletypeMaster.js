@@ -7,7 +7,7 @@ const addRole=async(req,res)=>{
         const createRole=await RoleType.create(newRole);
         res.status(201).json(createRole); 
     } catch (error) {
-        res.status(400).send({message:'Something went wrong'});
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 };
 
@@ -18,7 +18,7 @@ const getRole=async(req,res)=>{
         const getrole=await RoleType.findAll();
         res.status(200).json(getrole);
     } catch (error) {
-        res.status(400).send({message:'Something went wrong'});
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 };
 
@@ -32,7 +32,7 @@ const updateRole=async(req,res)=>{
         updaterole.update(req.body);
         res.status(200).json(updaterole);
     } catch (error) {
-        res.status(400).send({message:'Something went wrong'});
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 }
 

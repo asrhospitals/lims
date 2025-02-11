@@ -7,7 +7,7 @@ const addReception=async(req,res)=>{
         const createRecep=await Reception.create(newRecep);
         res.status(201).json(createRecep);
     } catch (error) {
-        res.status(400).json('Something went wrong');
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 };
 
@@ -18,7 +18,7 @@ const getReception=async(req,res)=>{
         const getrecep=await Reception.findAll();
         res.status(200).json(getrecep);
     } catch (error) {
-        res.status(400).json('Something went wrong');
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
 }
 
@@ -30,7 +30,7 @@ const getReception=async(req,res)=>{
         updaterecep.update(req.body);
         res.status(200).json(updaterecep)
     } catch (error) {
-        res.status(400).json('Something went wrong');
+        res.status(400).send({message:'Something went wrong',error:error.message});
     }
  }
 
