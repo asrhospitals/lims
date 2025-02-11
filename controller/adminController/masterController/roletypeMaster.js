@@ -16,7 +16,7 @@ const addRole=async(req,res)=>{
 const getRole=async(req,res)=>{
     try {
         const getrole=await RoleType.findAll();
-        res.status(200).json(getRole);
+        res.status(200).json(getrole);
     } catch (error) {
         res.status(400).send({message:'Something went wrong'});
     }
