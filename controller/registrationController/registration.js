@@ -1,5 +1,5 @@
 const cloudinary = require("../../config/cloudinary"); // Import Cloudinary config
-const PPPRegistration = require("../../model/adminModel/registration/pppregistration"); // Import the model
+const Patient = require("../../model/adminModel/registration/pppregistration"); // Import the model
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -33,118 +33,121 @@ const upload = multer({ storage: storage });
 router.post(
   "/add-ppp",
   verifyToken,
-  role("center"),
+  role("phlebotomist"),
   upload.single("image"),
   async (req, res) => {
     try {
-      // Ensure req.body is populated correctly
+      // Extract user details from token
+      const { id: user_id, hospital_id } = req.user;
+      if (!hospital_id) {
+        return res.status(400).json({ message: "Hospital ID is missing in token" });
+      }
+
+      console.log("User ID:", user_id, "Hospital ID:", hospital_id); // Debugging
+
+      // Ensure hospital exists
+      const hospital = await Hospital.findOne({ where: { hospital_id } }); // ✅ Fixed query
+      if (!hospital) {
+        return res.status(404).json({ message: "Invalid hospital" });
+      }
+
       const {
-        patientname,
-        gurdianname,
-        age,
-        gender,
-        barcode,
+        patient_name,
+        gurdian_name,
+        patient_age,
+        patient_gender,
+        patient_barcode,
         refdoc,
         document,
         area,
         city,
         district,
-        op,
-        opno,
+        patient_op,
+        patient_opno,
         documenttype,
-        regdate,
-        mobilenumber,
+        patient_regdate,
+        patient_mobile,
         whatsappnumber,
         emailid,
         trfno,
         remark,
-        hospital_code,
       } = req.body;
 
-      if (!patient_name || !gurdian_name) {
-        return res
-          .status(400)
-          .json({ message: "Patient name and guardian name are required" });
-      }
+      // File path from Multer (check if file exists)
+    const filePath = req.file.path;
 
-      // File path from Multer
-      const filePath = req.file.path;
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(filePath, {
+      folder: "trf", // Folder name in Cloudinary
+    });
 
-      // Upload to Cloudinary
-      const result = await cloudinary.uploader.upload(filePath, {
-        folder: "trf", // Cloudinary folder
-      });
+    // Delete Local File After Upload
+    fs.unlinkSync(filePath);
 
-      // Delete local file after upload
-      fs.unlinkSync(filePath);
-
-      // Check if hospital exists
-      const hospital = await Hospital.findOne({
-        where: { hsptlname: hospital_code },
-      });
-      if (!hospital) {
-        return res.status(404).json({ message: "Hospital not found" });
-      }
-
-      // Create PPP Registration
-      const newPPP = await PPPRegistration.create({
-        patientname,
-        gurdianname,
-        age,
-        gender,
-        barcode,
+      // Create Patient Registration
+      const createPatient = await Patient.create({
+        patient_name,
+        gurdian_name,
+        patient_age,
+        patient_gender,
+        patient_barcode,
         refdoc,
-        hospital_id: hospital.id, // Use hospital ID
         document,
         area,
         city,
         district,
-        op,
-        opno,
+        patient_op,
+        patient_opno,
         documenttype,
-        regdate,
-        mobilenumber,
+        patient_regdate,
+        patient_mobile,
         whatsappnumber,
         emailid,
         trfno,
         remark,
-        attatchfile: result.secure_url, // Cloudinary URL
+        attatchfile: result.secure_url, 
+        hospital_id,  
+        created_by: user_id, 
       });
 
-      // Send response
+      // Send response with hospital name
       res.status(201).json({
-        message: "PPP registered successfully!",
-        data: newPPP,
+        message: "Patient registered successfully!",
+        data: createPatient,
+        hospital_name: hospital.hospital_name, 
       });
+
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Image upload failed", error: error.message });
+      res.status(500).json({
+        message: "Patient registration failed",
+        error: error.message, 
+      });
     }
   }
 );
 
-/// Get PPP Details by Hospital
-router.get("/get-ppp/:hospital_code",verifyToken,role("center"), async (req, res) => {
+
+
+// Get PPP Details by Hospital
+router.get("/get-ppp/:hospital_name",verifyToken,role("reception","phlebotomist"), async (req, res) => {
   try {
     /// Get Extract URL of hospital
-    const { hospital_code } = req.params;
+    const { hospital_name } = req.params;
     // Get current date in 'YYYY-MM-DD' format
     const currentDate = new Date().toLocaleDateString("en-CA");
-    const hospital = await Hospital.findOne({ where: { hsptlname: hospital_code } });
+    const hospital = await Hospital.findOne({ where: { hospital_name } });
     if (!hospital) {
       return res.status(404).json({ message: 'Hospital not found' });
-    }
+    } 
     ///Using Select Clause get PPP details by Hospital Name and current date with 10 data limit
-
-    const fetchPPP = await PPPRegistration.findAll({
-      where: { hospital_id: hospital.id } });
+    const fetchPPP = await Patient.findAll({
+      where: { patient_regdate: currentDate,hospital_id: hospital.hospital_id} });
 
     /// Checks if there is no data according to that hospital name
-    if (fetchPPP.count === 0) {
+    if (fetchPPP.length === 0) {
       return res
         .status(404)
-        .json({ message: "No data found for the specified hospital name" });
+        .json({ message: "No data available" });
     }
 
     res.status(200).json(fetchPPP);
@@ -155,92 +158,92 @@ router.get("/get-ppp/:hospital_code",verifyToken,role("center"), async (req, res
   }
 });
 
-/// Get Search PPP Patients details by barcode, date and name
-router.get("/get-search", async (req, res) => {
-  try {
-    ///Get Barcode and Date for Search PPP Data
-    const { barcode, startDate, endDate,patientname } = req.query;
+// /// Get Search PPP Patients details by barcode, date and name
+// router.get("/get-search", async (req, res) => {
+//   try {
+//     ///Get Barcode and Date for Search PPP Data
+//     const { barcode, startDate, endDate,patientname } = req.query;
 
-    const barcodeInt=parseInt(barcode, 10);
-    const whereConditions={};
+//     const barcodeInt=parseInt(barcode, 10);
+//     const whereConditions={};
 
-    /// Search By Barcode
-    if (barcode) {
-      whereConditions.barcode = {
-       barcodeInt // Assuming barcode is an integer
-      };
-    }
+//     /// Search By Barcode
+//     if (barcode) {
+//       whereConditions.barcode = {
+//        barcodeInt // Assuming barcode is an integer
+//       };
+//     }
 
-    ///Search Name
-    if (patientname) {
-      whereConditions.patientname = {
-       patientname 
-      };
-    }
+//     ///Search Name
+//     if (patientname) {
+//       whereConditions.patientname = {
+//        patientname 
+//       };
+//     }
 
 
-  // Add date range condition if both dates are provided
-  if (startDate && endDate) {
-    whereConditions.regdate = {
-        [Op.between]: [
-            new Date(startDate + 'T00:00:00Z'),
-            new Date(endDate + 'T23:59:59Z')
-        ]
-    };
-}
-    const fetchPPP = await PPPRegistration.findAll({where:whereConditions});
+//   // Add date range condition if both dates are provided
+//   if (startDate && endDate) {
+//     whereConditions.regdate = {
+//         [Op.between]: [
+//             new Date(startDate + 'T00:00:00Z'),
+//             new Date(endDate + 'T23:59:59Z')
+//         ]
+//     };
+// }
+//     const fetchPPP = await Patient.findAll({where:whereConditions});
 
-        /// Checks if there is no data according to that hospital name
-        if (!fetchPPP || fetchPPP.length === 0) {
-          return res
-            .status(404)
-            .json({ message: "No data found" });
-        }
-         // Return results
-        return res.status(200).json({
-            success: true,
-            count: fetchPPP.length,
-            data: fetchPPP
-        });
-  } catch (error) {
-    res
-    .status(500)
-    .json({ message: "Something went wrong", error: error.message });
-  }
-});
+//         /// Checks if there is no data according to that hospital name
+//         if (!fetchPPP || fetchPPP.length === 0) {
+//           return res
+//             .status(404)
+//             .json({ message: "No data found" });
+//         }
+//          // Return results
+//         return res.status(200).json({
+//             success: true,
+//             count: fetchPPP.length,
+//             data: fetchPPP
+//         });
+//   } catch (error) {
+//     res
+//     .status(500)
+//     .json({ message: "Something went wrong", error: error.message });
+//   }
+// });
 
-/// Update PPP Details
-router.put('/update-ppp/:id',upload.single('attatchfile'),async (req,res) => {
+// /// Update PPP Details
+// router.put('/update-ppp/:id',upload.single('attatchfile'),async (req,res) => {
   
-  try {
-    const id=req.params.id;
-     const updateData = {
-              ...req.body,
-              attatchfile: req.file ? req.file.path : undefined
-          };
+//   try {
+//     const id=req.params.id;
+//      const updateData = {
+//               ...req.body,
+//               attatchfile: req.file ? req.file.path : undefined
+//           };
 
-          const [updateCount] = await PPPRegistration.update(updateData, {
-            where: { id: id }
-        });
+//           const [updateCount] = await Patient.update(updateData, {
+//             where: { id: id }
+//         });
   
-        if (updateCount === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'Record not found'
-            });
-        }
-    const updatePPP=await PPPRegistration.findByPk(id);
-    return res.status(200).json({
-      success: true,
-      message: 'Updated successfully',
-      data: updatePPP
-  });
-  } catch (error) {
-    res
-    .status(500)
-    .json({ message: "Something went wrong", error: error.message });
-  }
-});
+//         if (updateCount === 0) {
+//             return res.status(404).json({
+//                 success: false,
+//                 message: 'Record not found'
+//             });
+//         }
+//     const updatePPP=await Patient.findByPk(id);
+//     return res.status(200).json({
+//       success: true,
+//       message: 'Updated successfully',
+//       data: updatePPP
+//   });
+//   } catch (error) {
+//     res
+//     .status(500)
+//     .json({ message: "Something went wrong", error: error.message });
+//   }
+// });
 
 
 

@@ -3,115 +3,95 @@ const bcrypt=require('bcryptjs');
 const jwt=require("jsonwebtoken");
 const { generateOtp,sendOtp } = require("../authenticationController/otpController");
 const OTP=require("../../model/authModel/authenticationModel/otpModel");
-const { where, Model } = require("sequelize");
 const Hospital=require('../../model/adminModel/masterModel/hospitalMaster');
 
 
 
 /// Register user
 
-const registration=async(req,res)=>{
+const registration = async (req, res) => {
+    try {
+        const { username, password, role, hospital_id, module, firstName, lastname, menuexpand, isactive } = req.body;
 
-    try{
-        /// Get User data 
-        const {username,password,role,module,firstName,lastname,menuexpand,isactive,hospital_code}=req.body;
-       
-// Handle hospital assignment
-       let hospitalId = null;
-if (role !== 'admin') {
-    const hospital = await Hospital.findOne({
-        where: { hsptlname: hospital_code },
-      });
-      if (!hospital) {
-        return res.status(404).json({ message: "Hospital not found" });
-      }
-  hospitalId = hospital.hospital_id;
-}
+        // Ensure that the hospital exists for non-admin users
+        if (role !== 'admin') {
+            const hospital = await Hospital.findOne({ where: { hospital_id } });
+            if (!hospital) {
+                return res.status(404).json({ message: "Hospital not found" });
+            }
+        }
 
-        /// Hashed the appsword
-        const hashedPassword =await bcrypt.hash(password,10);
-        /// Create New User
-        const newUser=User.create({username,password:hashedPassword,role,module,firstName,lastname,menuexpand,isactive, hospital_id: hospitalId,});
-        /// Success message
-        res.status(201).json({message:'User Registered Successfully'});
-    }catch(e){
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create a new user
+        const newUser = await User.create({
+            username,
+            password: hashedPassword,
+            role,
+            hospital_id: role !== 'admin' ? hospital_id : null, // Admins don't belong to a hospital
+            module,
+            firstName,
+            lastname,
+            menuexpand,
+            isactive,
+        });
+
+        res.status(201).json({ message: "User Registered Successfully", user: newUser });
+    } catch (e) {
         console.log(e.message);
-        res.status(400).json({message:'User Registration Failed',});
+        res.status(400).json({ message: "User Registration Failed" });
     }
-}
+};
 
 
 
 
 
 /// Login User
+const login = async (req, res) => {
+  try {
+      const { username, password } = req.body;
 
-const login=async(req,res)=>{
+      // Find user
+      const user = await User.findOne({ where: { username } });
+      if (!user) return res.status(404).json({ message: "No User found" });
 
-    try{
+      // Compare password
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-        /// Taking username and password from user request
-        const{username,password,hospital_code}=req.body;
-       
-         // Find user with hospital information
-        const user = await User.findOne({ where: { username }});
-      
-        /// If there is no username found request by the User , send an error
-        if(!user) return  res.status(404).json({message:'No User found'});
-
-        /// If username match, now comapre the hash password, 
-        const isMatch= await bcrypt.compare(password,user.password);
-
-        /// If password not match, return an error message
-        if(!isMatch) return res.status(400).json({message:'Invalid credential'});
-
-        /// If User is admin then sent otp to the predefine email
-        if(user.role ==='admin'){
-            /// Else password is matched , then generateOTP function will create OTP
+      // Handle Admin Users
+      if (user.role === 'admin') {
           const otp = generateOtp();
-          /// and Save otp in DataBase
-          await OTP.create({ user_id: user.user_id, otp ,expires_at: new Date(Date.now() + 10 * 60 * 1000)}); 
-          
-          // Send OTP to predefined email
-         await sendOtp(process.env.PREDEFINED_EMAIL, otp);
- 
-         // OTP Confirmation Message
-        return res.status(200).send({ message: "OTP sent to email" ,id: user.user_id ,otp});
-      
-        }  
-
-        /// If User is Non Admin, Validate User with hospital
-        const verifiedUsers=['reception', 'doctor', 'phlebotomist', 'technician'];
-        if (verifiedUsers.includes(user.role)){
-           
-            // If hospital_code is provided, verify access
-        if (hospital_code) {
-        const hospital = await Hospital.findOne({ 
-          where: { 
-            hsptlname: hospital_code,
-            hospital_id: user.hospital_id
-          }
-        });
-
-        if (!hospital) {
-          return res.status(403).json({
-            status: 'error',
-            message: 'Access denied to this hospital'
-          });
-        }
+          await OTP.create({ user_id: user.user_id, otp, expires_at: new Date(Date.now() + 10 * 60 * 1000) });
+          await sendOtp(process.env.PREDEFINED_EMAIL, otp);
+          return res.status(200).json({ message: "OTP sent to email", id: user.user_id, otp });
       }
-  
-            const token = jwt.sign({ id: user.user_id, role: user.role,hospital_code:user.hospital_id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        // Login Success Message
-      return  res.status(200).send({ message: "Login successfully" ,token,id: user.user_id,role: user.role,hospital_code:user.hospital_id });
-        }
-      
-    }catch(e){
-        
-        res.status(400).send({message:'Login Failed'});
-    }
-}
+      // Handle Non-Admin Users (Require Hospital Verification)
+      if (!user.hospital_id) {
+          return res.status(403).json({ message: "Access denied: No hospital assigned" });
+      }
+
+      const token = jwt.sign(
+          { id: user.user_id, role: user.role, hospital_id: user.hospital_id },
+          process.env.JWT_SECRET,
+          { expiresIn: '1h' }
+      );
+
+      return res.status(200).json({
+          message: "Login successfully",
+          token,
+          id: user.user_id,
+          role: user.role,
+          hospital_id: user.hospital_id
+      });
+  } catch (e) {
+      res.status(400).json({ message: "Login Failed" });
+  }
+};
+
 
 
 /// Verify OTP

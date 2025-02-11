@@ -47,7 +47,7 @@ const User=sequelize.define('user',{
         type: DataTypes.INTEGER,
         allowNull: true, // Allow null for admin users
         references: {
-          model: Hospital,
+          model:Hospital,
           key: 'hospital_id',
         },
         onDelete: 'SET NULL', // If a hospital is deleted, set this field to NULL
@@ -57,7 +57,7 @@ const User=sequelize.define('user',{
 
 });
 
-Hospital.hasMany(User, { foreignKey: 'hospital_id', onDelete: 'CASCADE' }); // A hospital has many users
+Hospital.hasMany(User, { foreignKey: 'hospital_id'}); // A hospital has many users
 User.belongsTo(Hospital, { foreignKey: 'hospital_id' }); // A user belongs to a hospital
 
 

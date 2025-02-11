@@ -4,7 +4,7 @@ const app=express();
 const cors=require("cors");
 const PORT=process.env.PORT || 2000;
 const MasterRoutes=require('./routes/adminRoutes/masterRoute');
-const RegistrationRoutes=require('./controller/adminController/registrationController/registration');
+const RegistrationRoutes=require('./controller/registrationController/registration');
 const ReportDoctor=require('./controller/adminController/masterController/reportDoctor');
 const AuthRoutes=require('./routes/authRoutes/authenticationRoute');
 const sequelize=require('./db/connectDB');
@@ -30,7 +30,7 @@ app.get('/',async (req,res) => {
 
 const server=async()=>{
     try {
-        await sequelize.authenticate(); 
+        await sequelize.authenticate();
         console.log("Database Connected");
         
         app.listen(PORT,()=>{ console.log(`${PORT} port is Connected`);});

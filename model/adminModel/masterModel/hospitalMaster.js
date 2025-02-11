@@ -7,7 +7,7 @@ const Hospital=sequalize.define('hospitalmaster',{
         autoIncrement: true,
         primaryKey: true,
       },
-    hsptlname:{
+    hospital_name:{
         type:DataTypes.STRING,
         allowNull:false
     },
