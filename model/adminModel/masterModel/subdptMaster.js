@@ -8,7 +8,8 @@ const SubdepartmentMaster=sequelize.define('subdepartment',{
     },
     subDptName:{
         type:DataTypes.STRING,
-        allowNull:false
+        allowNull:false,
+        unique:true
     },
     isActive:{
         type:DataTypes.BOOLEAN,

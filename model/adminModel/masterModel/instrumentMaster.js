@@ -10,6 +10,10 @@ const InstrumentMaster=sequalize.define('instrumentmaster',{
         type:DataTypes.STRING,
         allowNull:false
     },
+    short_code:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
     installDate:{
         type:DataTypes.DATE,
         allowNull:false
