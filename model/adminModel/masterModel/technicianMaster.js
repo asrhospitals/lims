@@ -44,7 +44,7 @@ const Technician=sequalize.define('technician',{
         allowNull:false
       },
       contactNo: {
-        type:DataTypes.INTEGER,
+        type:DataTypes.STRING,
         allowNull:false
       },
       isactive: {

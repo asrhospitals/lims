@@ -29,7 +29,7 @@ const Reception = sequialize.define("reception", {
     allowNull: false,
   },
   contactNo: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     allowNull: false,
   },
   gender: {
