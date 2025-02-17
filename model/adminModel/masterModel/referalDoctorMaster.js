@@ -44,7 +44,7 @@ const ReferralDoctor=sequalize.define('referaldoctor',{
         allowNull:false
       },
       contactNo: {
-        type:DataTypes.INTEGER,
+        type:DataTypes.STRING,
         allowNull:false
       },
       isactive: {
