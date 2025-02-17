@@ -1,7 +1,7 @@
 const ReferralDoctor=require('../../../model/adminModel/masterModel/referalDoctorMaster');
 
 /// Add Referral Doctor
-const addRefDoctor=async(res,req)=>{
+const addRefDoctor=async(req,res)=>{
     try {
         const newRefDoc=req.body;
         const createRefDoc=await ReferralDoctor.create(newRefDoc);
