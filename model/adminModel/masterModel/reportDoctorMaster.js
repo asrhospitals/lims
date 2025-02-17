@@ -15,7 +15,7 @@ const ReportDoctor=sequelize.define('reportdoctor',{
         allowNull:false
     },
     phoneNo:{
-        type:DataTypes.INTEGER,
+        type:DataTypes.STRING,
         allowNull:false
     },
     addressLine1:{
