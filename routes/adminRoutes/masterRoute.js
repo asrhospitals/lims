@@ -94,14 +94,13 @@ router.route('/add-refdoc').post(addRefDoctor);
 router.route('/get-refdoc').get(getRefDoc);
 router.route('/update-refdoc/:id').put(updateRefDoc);
 
-///-------------Report Doctor(Need to Add)----------
 
 /// --------------Profile Entry Master------------------
 router.route('/add-profileentry').post(addProfile);
 router.route('/get-profileentry').get(getProfile);
 router.route('/update-profileentry/:id').put(updateProfile);
 
-///---------- Profile Master(Need to Add)------------
+///---------- Profile Master------------
 router.route('/add-profile').post(createProfile);
 router.route('/get-profile').get(fetchProfile);
 router.route('/update-profile/:id').put(updateProfiles);

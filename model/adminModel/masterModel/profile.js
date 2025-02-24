@@ -3,11 +3,11 @@ const sequelize = require('../../../db/connectDB');
 
 
 const Profile=sequelize.define('profile',{
-    profileEntryName:{
+    profile_entry:{
         type:DataTypes.STRING,
         allowNull:false
     },
-    investigationName:{
+    investigation_name:{
         type:DataTypes.ARRAY(DataTypes.STRING),
         allowNull:false,
         defaultValue: []
