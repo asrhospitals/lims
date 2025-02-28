@@ -16,7 +16,7 @@ const addReport=async(req,res)=>{
 
 const getReport=async(req,res)=>{
     try {
-        const findReport=await Report.findAll();
+        const findReport=await ReportType.findAll();
         res.status(200).json(findReport);
     } catch (error) {
         res.status(400).send({message:'Something went wrong',error:error.message});
