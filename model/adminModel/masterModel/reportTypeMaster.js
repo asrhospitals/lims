@@ -15,7 +15,8 @@ const ReportType=sequalize.define('reporttype',{
         allowNull:false
     },
     entryvalues:{
-        type:DataTypes.STRING,
+        type:DataTypes.ARRAY(DataTypes.STRING),
+        defaultValue:[]
     },
     isactive:{
         type:DataTypes.BOOLEAN,
