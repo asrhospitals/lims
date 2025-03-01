@@ -3,7 +3,7 @@ const sequelize = require("../../../db/connectDB");
 const Hospital = require("../masterModel/hospitalMaster");
 const User = require("../../authModel/authenticationModel/userModel");
 
-const Patient = sequelize.define("ppp", {
+const Patient = sequelize.define("patient", {
   patient_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -26,7 +26,7 @@ const Patient = sequelize.define("ppp", {
     allowNull: false,
   },
   patient_barcode: {
-    type: DataTypes.STRING, // ✅ Changed from INTEGER to STRING
+    type: DataTypes.STRING, 
     allowNull: false,
     unique: true,
   },
@@ -63,7 +63,7 @@ const Patient = sequelize.define("ppp", {
     defaultValue: DataTypes.NOW,
   },
   patient_mobile: {
-    type: DataTypes.STRING, // ✅ Changed from INTEGER to STRING
+    type: DataTypes.STRING, 
     allowNull: false,
   },
   whatsappnumber: {
@@ -73,7 +73,7 @@ const Patient = sequelize.define("ppp", {
     type: DataTypes.STRING,
   },
   trfno: {
-    type: DataTypes.STRING, // ✅ Changed from INTEGER to STRING
+    type: DataTypes.STRING, 
   },
   remark: {
     type: DataTypes.STRING,
@@ -84,7 +84,7 @@ const Patient = sequelize.define("ppp", {
     allowNull: false,
   },
   hospital_id: {
-    type: DataTypes.INTEGER, // ✅ Ensure consistency with Hospital model
+    type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: Hospital,
@@ -92,16 +92,26 @@ const Patient = sequelize.define("ppp", {
     },
   },
   created_by: {
-    type: DataTypes.INTEGER, // ✅ Ensure consistency with User model
+    type: DataTypes.INTEGER, 
     allowNull: false,
     references: {
       model: User,
       key: "user_id",
     },
   },
+
+  /// Patient Status Data, Must Be ENUM
+  patient_data_staus: {
+     type: DataTypes.ENUM,
+     values: ['Phlebotomist', 'Reception','Technician','Doctor'],
+     defaultValue: 'Phlebotomist',
+}
+
+
+
 });
 
-// ✅ Corrected Associations
+/// Relationship
 Patient.belongsTo(Hospital, { foreignKey: "hospital_id" });
 Hospital.hasMany(Patient, { foreignKey: "hospital_id" });
 
