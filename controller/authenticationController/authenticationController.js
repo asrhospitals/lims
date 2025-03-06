@@ -81,14 +81,20 @@ const login = async (req, res) => {
       );
 
       return res.status(200).json({
-          message: "Login successfully",
+          success: true,
           token,
           id: user.user_id,
           role: user.role,
           hospital_id: user.hospital_id
+          //Need to Get Hospital Name as per Hospital ID
+
+          //Need to Get User Name as per User ID
       });
   } catch (e) {
-      res.status(400).json({ message: "Login Failed" });
+    return res.status(403).json({
+        success: false,
+        error: "Access denied: No hospital assigned"
+    });
   }
 };
 
