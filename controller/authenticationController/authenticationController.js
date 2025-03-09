@@ -54,7 +54,15 @@ const login = async (req, res) => {
       const { username, password } = req.body;
 
       // Find user
-      const user = await User.findOne({ where: { username } });
+      const user = await User.findOne({
+        where: { username },
+        include: [
+          {
+            model: Hospital,
+            attributes: ['hospital_id', 'hospital_name'] // Fetch only hospital_id and name
+          }
+        ]
+      }); 
       if (!user) return res.status(404).json({ message: "No User found" });
 
       // Compare password
@@ -79,21 +87,26 @@ const login = async (req, res) => {
           process.env.JWT_SECRET,
           { expiresIn: '1h' }
       );
+      
+      
 
       return res.status(200).json({
           success: true,
           token,
           id: user.user_id,
           role: user.role,
-          hospital_id: user.hospital_id
+          hospital_id: user.hospital_id,
           //Need to Get Hospital Name as per Hospital ID
+          hospital_name: user.hospitalmaster ? user.hospitalmaster.hospital_name : "Unknown Hospital",
+           //Need to Get User Name as per User ID
+          username: user.firstName + " " + user.lastname
 
-          //Need to Get User Name as per User ID
+          
       });
   } catch (e) {
     return res.status(403).json({
         success: false,
-        error: "Access denied: No hospital assigned"
+        error: e.message,
     });
   }
 };
