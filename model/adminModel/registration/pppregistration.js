@@ -15,7 +15,6 @@ const Patient = sequelize.define("patient", {
   },
   gurdian_name: {
     type: DataTypes.STRING,
-    allowNull: false,
   },
   patient_age: {
     type: DataTypes.STRING,
@@ -34,9 +33,6 @@ const Patient = sequelize.define("patient", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  document: {
-    type: DataTypes.STRING,
-  },
   area: {
     type: DataTypes.STRING,
   },
@@ -54,9 +50,6 @@ const Patient = sequelize.define("patient", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  documenttype: {
-    type: DataTypes.STRING,
-  },
   patient_regdate: {
     type: DataTypes.DATEONLY,
     allowNull: false,
@@ -64,7 +57,6 @@ const Patient = sequelize.define("patient", {
   },
   patient_mobile: {
     type: DataTypes.STRING, 
-    allowNull: false,
   },
   whatsappnumber: {
     type: DataTypes.STRING,
@@ -74,6 +66,7 @@ const Patient = sequelize.define("patient", {
   },
   trfno: {
     type: DataTypes.STRING, 
+    allowNull: false,
   },
   remark: {
     type: DataTypes.STRING,
