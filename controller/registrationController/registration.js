@@ -132,8 +132,9 @@ router.get("/get-patient/:hospital_name",verifyToken,role("reception","phlebotom
     /// Get Extract URL of hospital
     const { hospital_name } = req.params;
     // Get current date in 'YYYY-MM-DD' format
-    const currentDate = new Date().toLocaleDateString("en-CA");
-    
+    // const currentDate = new Date().toLocaleDateString("en-CA");
+    const currentDate = new Date().toLocaleString("en-CA", { timeZone: "Asia/Kolkata" }).split(",")[0];
+   //Get Hospital Details    
     const hospital = await Hospital.findOne({ where: { hospital_name } });
     if (!hospital) {
       return res.status(404).json({ message: 'Hospital not found' });
@@ -161,59 +162,70 @@ router.get("/get-patient/:hospital_name",verifyToken,role("reception","phlebotom
   }
 });
 
-// /// Get Search PPP Patients details by barcode, date and name
-// router.get("/get-search", async (req, res) => {
-//   try {
-//     ///Get Barcode and Date for Search PPP Data
-//     const { barcode, startDate, endDate,patientname } = req.query;
-
-//     const barcodeInt=parseInt(barcode, 10);
-//     const whereConditions={};
-
-//     /// Search By Barcode
-//     if (barcode) {
-//       whereConditions.barcode = {
-//        barcodeInt // Assuming barcode is an integer
-//       };
-//     }
-
-//     ///Search Name
-//     if (patientname) {
-//       whereConditions.patientname = {
-//        patientname 
-//       };
-//     }
 
 
-//   // Add date range condition if both dates are provided
-//   if (startDate && endDate) {
-//     whereConditions.regdate = {
-//         [Op.between]: [
-//             new Date(startDate + 'T00:00:00Z'),
-//             new Date(endDate + 'T23:59:59Z')
-//         ]
-//     };
-// }
-//     const fetchPPP = await Patient.findAll({where:whereConditions});
+/// Get Search PPP Patients details by barcode, date and name
+router.get("/search-patient", verifyToken,role("reception","phlebotomist"),async (req, res) => {
+  try {
+    ///Get Barcode and Date for Search Patient Data
+    const { patient_barcode, startDate, endDate,patient_name,hospital_id } = req.query;
 
-//         /// Checks if there is no data according to that hospital name
-//         if (!fetchPPP || fetchPPP.length === 0) {
-//           return res
-//             .status(404)
-//             .json({ message: "No data found" });
-//         }
-//          // Return results
-//         return res.status(200).json({
-//             success: true,
-//             count: fetchPPP.length,
-//             data: fetchPPP
-//         });
-//   } catch (error) {
-//     res
-//     .status(500)
-//     .json({ message: "Something went wrong", error: error.message });
-//   }
-// });
+ // Ensure hospital_id is provided
+ if (!hospital_id) {
+  return res.status(400).json({ message: "Hospital ID is required" });
+}
+
+// Find hospital
+const hospital = await Hospital.findOne({ where: { hospital_id } });
+if (!hospital) {
+  return res.status(404).json({ message: "Hospital not found" });
+}
+
+// Build query conditions dynamically
+const whereConditions = { hospital_id: hospital.hospital_id };
+
+    // Search by Barcode
+    if (patient_barcode) {
+      
+      whereConditions.patient_barcode={ [Op.iLike]: `%${patient_barcode}%` } // Use `Op.iLike` for case-insensitive search
+    }
+
+    // Search by Name (Case-insensitive)
+    if (patient_name) {
+      whereConditions.patient_name = { [Op.iLike]: `%${patient_name}%` }; // Use `Op.iLike` for case-insensitive search
+    }
+
+    // Search by Date Range
+    if (startDate && endDate) {
+      whereConditions.patient_regdate = {
+        [Op.between]: [
+          new Date(startDate + "T00:00:00Z"),
+          new Date(endDate + "T23:59:59Z"),
+        ],
+      };
+    }
+    // Fetch patients
+    const fetchPPP = await Patient.findAll({
+      where: whereConditions,
+      include: [{ model: Hospital, attributes: ["hospital_name"] }],
+    });
+
+    // Check if no data found
+    if (!fetchPPP.length) {
+      return res.status(404).json({ message: "No data found" });
+    }
+
+    // Return results
+    return res.status(200).json({
+      success: true,
+      count: fetchPPP.length,
+      data: fetchPPP,
+    });
+
+  } catch (error) {
+    return res.status(500).json({ message: "Something went wrong", error: error.message });
+  }
+});
 
 // /// Update PPP Details
 // router.put('/update-ppp/:id',upload.single('attatchfile'),async (req,res) => {
