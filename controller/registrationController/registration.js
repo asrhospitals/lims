@@ -28,10 +28,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-/// Add PPP Details
+/// Add Patient Details
 
 router.post(
-  "/add-ppp",
+  "/add-patient",
   verifyToken,
   role("phlebotomist"),
   upload.single("image"),
@@ -43,10 +43,10 @@ router.post(
         return res.status(400).json({ message: "Hospital ID is missing in token" });
       }
 
-      console.log("User ID:", user_id, "Hospital ID:", hospital_id); // Debugging
+      
 
       // Ensure hospital exists
-      const hospital = await Hospital.findOne({ where: { hospital_id } }); // ✅ Fixed query
+      const hospital = await Hospital.findOne({ where: { hospital_id } }); 
       if (!hospital) {
         return res.status(404).json({ message: "Invalid hospital" });
       }
@@ -64,7 +64,6 @@ router.post(
         district,
         patient_op,
         patient_opno,
-        documenttype,
         patient_regdate,
         patient_mobile,
         whatsappnumber,
@@ -98,7 +97,6 @@ router.post(
         district,
         patient_op,
         patient_opno,
-        documenttype,
         patient_regdate,
         patient_mobile,
         whatsappnumber,
@@ -128,29 +126,34 @@ router.post(
 
 
 
-// Get PPP Details by Hospital
-router.get("/get-ppp/:hospital_name",verifyToken,role("reception","phlebotomist"), async (req, res) => {
+// Get Patient Details by Hospital
+router.get("/get-patient/:hospital_name",verifyToken,role("reception","phlebotomist"), async (req, res) => {
   try {
     /// Get Extract URL of hospital
     const { hospital_name } = req.params;
     // Get current date in 'YYYY-MM-DD' format
     const currentDate = new Date().toLocaleDateString("en-CA");
+    
     const hospital = await Hospital.findOne({ where: { hospital_name } });
     if (!hospital) {
       return res.status(404).json({ message: 'Hospital not found' });
     } 
-    ///Using Select Clause get PPP details by Hospital Name and current date with 10 data limit
-    const fetchPPP = await Patient.findAll({
-      where: { patient_regdate: currentDate,hospital_id: hospital.hospital_id} });
+    ///Get all Patients details by Hospital Name and Current Date  
+    const fetchPatients = await Patient.findAll({
+        where: { patient_regdate: currentDate,hospital_id: hospital.hospital_id},
+        include: [
+          { model: Hospital,attributes: ['hospital_name'] }
+        ]
+      });
 
     /// Checks if there is no data according to that hospital name
-    if (fetchPPP.length === 0) {
+    if (fetchPatients.length === 0) {
       return res
-        .status(404)
+        .status(200)
         .json({ message: "No data available" });
     }
 
-    res.status(200).json(fetchPPP);
+    res.status(200).json({data: fetchPatients, hospital_name: hospital.hospital_name});
   } catch (error) {
     res
       .status(500)
